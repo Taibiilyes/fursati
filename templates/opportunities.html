@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}الفرص المقترحة{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">فلترة آلية — دون أي بحث يدوي</span>
+    <h2>🎯 فرصي المقترحة</h2>
+    <p>يفحص النظام العروض كل 12 ساعة ويضيف هنا كل ما يطابق سيرتك الذاتية</p>
+  </div>
+
+  {% if not opps %}
+  <div class="empty card"><span class="ico">🤖</span>
+    <b>لا توجد فرص مقترحة بعد</b>
+    <p class="small muted" style="margin-top:6px">أكمل مهاراتك في ملفك أو اضغط «بحث الآن» لتشغيل الفلترة فوراً.</p>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:14px; flex-wrap:wrap">
+      <form method="post" action="{{ url_for('scan_now') }}"><button class="btn btn-primary btn-sm">🔄 بحث الآن</button></form>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('profile') }}">✏️ تحديث مهاراتي</a>
+    </div>
+  </div>
+  {% else %}
+
+  <div class="qa-bar rv in">
+    <span class="small muted">آخر بحث تلقائي: <b>{{ last_scan_a or '—' }}</b></span>
+    <form method="post" action="{{ url_for('scan_now') }}">
+      <button class="btn btn-gold btn-sm">🔄 بحث الآن عن عروض جديدة</button>
+    </form>
+  </div>
+
+  <div class="grid grid-3">
+    {% for o in opps %}
+    <div class="card job-card rv rv-d{{ loop.index if loop.index < 4 else 3 }}">
+      {% if o.score >= 70 %}<span class="badge-new badge-strong">مطابقة قوية ✦</span>{% endif %}
+      <div class="job-top">
+        <div class="logo-dot" style="background:linear-gradient(140deg, {{ o.color }}, {{ o.color }}cc)">{{ o.company[:1] }}</div>
+        <div>
+          <h3>{{ o.title }}</h3>
+          <div class="muted small">{{ o.company }}</div>
+        </div>
+      </div>
+      <div class="job-meta">
+        <span class="chip">📍 {{ o.city }}</span>
+        <span class="chip-gray chip">{{ o.contract }}</span>
+      </div>
+      <div>
+        <div class="small muted">مطابقة سيرتك: <span class="match-num">{{ o.score }}%</span></div>
+        <div class="match-bar"><div class="match-fill" style="width:{{ o.score }}%"></div></div>
+      </div>
+      {% if o.matched %}
+      <div class="tags">
+        {% for m in o.matched[:4] %}<span class="tag">✓ {{ m }}</span>{% endfor %}
+      </div>
+      {% endif %}
+      <div class="muted small">💰 {{ o.salary }} • أُضيفت {{ o.created_at|dt }}</div>
+      <div class="doc-actions" style="margin-top:auto">
+        <a class="btn btn-primary btn-sm" href="{{ url_for('apply_page', jid=o.job_id) }}">🚀 ترشح فوري</a>
+        <form method="post" action="{{ url_for('opportunity_dismiss', oid=o.id) }}">
+          <button class="btn btn-ghost btn-sm" title="إخفاء هذه الفرصة">✕ استبعاد</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+jobs.db
+uploads/photos/*
+uploads/cvs/*
+uploads/docs/*
+uploads/tmp/*
+!uploads/photos/.gitkeep
+apk-signing/
+*.keystore
+previews/
+*.png
+!static/icons/*.png
+!static/img/*.jpg

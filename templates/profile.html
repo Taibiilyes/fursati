@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}ملفي الشخصي{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="card profile-head rv in" style="margin-bottom:18px">
+    {% if user.photo %}<img class="avatar" src="{{ url_for('photos', name=user.photo) }}" alt="">
+    {% else %}<div class="avatar avatar-empty">👤</div>{% endif %}
+    <div>
+      <h2>{{ user.full_name }}</h2>
+      <div class="muted small">📧 {{ user.email }} {% if user.phone %} • 📱 {{ user.phone }}{% endif %}</div>
+      <form method="post" action="{{ url_for('reupload_cv') }}" enctype="multipart/form-data" style="margin-top:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <input type="file" name="cv" accept=".pdf,.docx" required style="max-width:250px">
+        <button class="btn btn-ghost btn-sm" type="submit">🔄 تحديث ملفي من سيرة ذاتية جديدة</button>
+      </form>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+  <div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:14px">المعلومات الشخصية</h3>
+    <div class="form-row">
+      <div class="field"><label>الاسم الكامل</label><input type="text" name="full_name" value="{{ user.full_name }}"></div>
+      <div class="field"><label>الهاتف</label><input type="text" name="phone" value="{{ user.phone }}"></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>المسمى الوظيفي</label><input type="text" name="title" value="{{ user.title }}"></div>
+      <div class="field"><label>ولاية الإقامة (للفرص القريبة)</label><input type="text" name="wilaya" value="{{ user.wilaya }}" list="wl">
+        <datalist id="wl">{% for w in wilayas %}<option value="{{ w }}">{% endfor %}</datalist></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>العنوان</label><input type="text" name="address" value="{{ user.address }}"></div>
+      <div class="field"><label>تاريخ الميلاد</label><input type="text" name="birth_date" value="{{ user.birth_date }}"></div>
+    </div>
+    <div class="field"><label>تغيير الصورة الشخصية</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp"></div>
+    <div class="field"><label>الملخص المهني</label><textarea name="summary">{{ user.summary }}</textarea></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:14px">الكفاءات والإضافات</h3>
+    <div class="form-row">
+      <div class="field"><label>المهارات (فواصل)</label><textarea name="skills">{{ user.skills|join('، ') }}</textarea></div>
+      <div class="field"><label>اللغات (سطر لكل لغة)</label><textarea name="languages">{% for l in user.languages %}{{ l }}
+{% endfor %}</textarea></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>شهادات العمل والدورات (فواصل)</label><textarea name="certifications">{{ user.certifications|join('، ') }}</textarea></div>
+      <div class="field"><label>الاهتمامات (سطر لكل اهتمام)</label><textarea name="interests">{% for i in user.interests %}{{ i }}
+{% endfor %}</textarea>
+        <div class="hint">تظهر في السيرة المخصّصة وتساعد في مطابقة الفرص</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3 style="margin-bottom:14px">المسار</h3>
+    <div class="field"><label>الخبرة المهنية (سطر لكل خبرة)</label>
+      <textarea name="experience">{% for e in user.experience %}{{ e.role }} | {{ e.org }} | {{ e.period }} | {{ e.desc }}
+{% endfor %}</textarea></div>
+    <div class="field"><label>الدبلومات والتكوين (سطر لكل شهادة)</label>
+      <textarea name="education">{% for e in user.education %}{{ e.degree }} | {{ e.school }} | {{ e.year }}
+{% endfor %}</textarea></div>
+  </div>
+
+  <button class="btn btn-primary" type="submit">💾 حفظ كل التعديلات</button>
+  <span class="small muted" style="margin-right:10px">يُسجَّل كل تعديل في سجل نشاطك، وتُعاد فلترة فرصك تلقائياً</span>
+  </form>
+</div>
+{% endblock %}

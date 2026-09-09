@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}عروض العمل{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">بحث مباشر — بالولاية أو الاختصاص أو القرب</span>
+    <h2>عروض العمل المنشورة</h2>
+    <span class="muted small">{{ jobs|length }} عرض متاح</span>
+  </div>
+
+  <form class="filters" method="get">
+    <input type="text" name="q" value="{{ f.q }}" placeholder="🔎 منصب، شركة، كلمة مفتاحية…">
+    <select name="wilaya">
+      <option value="">كل الولايات</option>
+      {% for w in wilayas %}<option value="{{ w }}" {% if f.wilaya==w %}selected{% endif %}>{{ w }}</option>{% endfor %}
+    </select>
+    <select name="specialty">
+      <option value="">كل الاختصاصات</option>
+      {% for sp in specialties %}<option value="{{ sp }}" {% if f.specialty==sp %}selected{% endif %}>{{ sp }}</option>{% endfor %}
+    </select>
+    <select name="contract">
+      <option value="">كل أنواع العقود</option>
+      {% for c in contracts %}<option value="{{ c }}" {% if f.contract==c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">تصفية</button>
+    <label class="small" style="display:flex; gap:14px; align-items:center; font-weight:500; grid-column:1/-1; flex-wrap:wrap">
+      <span style="display:flex; gap:6px; align-items:center">
+        <input type="checkbox" name="near" value="1" {% if f.near %}checked{% endif %} onchange="this.form.submit()">
+        📍 الفرص القريبة من عنوان إقامتي
+      </span>
+      {% if user %}
+      <span style="display:flex; gap:6px; align-items:center">
+        <input type="checkbox" name="sort" value="match" {% if f.sort=='match' %}checked{% endif %} onchange="this.form.submit()">
+        🎯 الترتيب حسب مطابقة سيرتي الذاتية
+      </span>
+      {% endif %}
+      <a class="small" href="{{ url_for('jobs_page') }}">إعادة تعيين ✕</a>
+    </label>
+  </form>
+
+  {% if dist_note %}<div class="flash flash-warn" style="margin-bottom:16px">{{ dist_note }}</div>{% endif %}
+
+  {% if not jobs %}
+  <div class="empty"><span class="ico">🏜️</span>لا توجد عروض مطابقة لهذه التصفية — جرّب توسيع البحث.</div>
+  {% endif %}
+
+  <div class="grid grid-3">
+    {% for j in jobs %}
+    <a class="card job-card rv rv-d{{ loop.index if loop.index < 4 else 3 }}" href="{{ url_for('job_page', jid=j.id) }}">
+      {% if j.posted_days_ago <= 3 %}<span class="badge-new">جديد ✦</span>{% endif %}
+      <div class="job-top">
+        <div class="logo-dot" style="background:linear-gradient(140deg, {{ j.color }}, {{ j.color }}cc)">{{ j.company[:1] }}</div>
+        <div>
+          <h3>{{ j.title }}</h3>
+          <div class="muted small">{{ j.company }}</div>
+        </div>
+      </div>
+      <div class="job-meta">
+        <span class="chip">📍 {{ j.city }}</span>
+        <span class="chip-gray chip">{{ j.contract }}</span>
+        <span class="chip-gold chip">{{ j.sector }}</span>
+        {% if j.dist is defined and j.dist is not none %}<span class="chip" style="background:#E8F0FB; color:#2C5AA0">🧭 {{ j.dist }} كم من إقامتك</span>{% endif %}
+      </div>
+      {% if j.score is not none %}
+      <div>
+        <div class="small muted">مطابقة سيرتك: <span class="match-num">{{ j.score }}%</span>
+          {% if j.matched %} • {{ j.matched|length }} مهارة مشتركة{% endif %}</div>
+        <div class="match-bar"><div class="match-fill" style="width:{{ j.score }}%"></div></div>
+      </div>
+      {% endif %}
+      <div class="muted small" style="margin-top:auto">💰 {{ j.salary }} &nbsp;|&nbsp; ⏱ {{ j.posted_days_ago|ago }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}عروض العمل — الترشح المباشر{% endblock %}
+{% block body %}
+
+<!-- ═══ البطل ═══ -->
+<div class="hero">
+  <div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+  <div class="hero-grid"></div>
+  <div class="container hero-inner">
+    <div>
+      <div class="kicker rv in"><span class="pulse"></span> منصة التشغيل الذكية للبحث عن العمل</div>
+      <h1 class="rv in">وظيفتك القادمة تبدأ<br>من <em>سيرتك الذاتية</em></h1>
+      <p class="lead rv in rv-d1">حمّل سيرتك مرة واحدة… فيبني التطبيق حسابك كاملاً — من صورتك الشخصية إلى آخر عنصر — ثم يبحث عن العروض كل 12 ساعة، يفلترها حسب مهاراتك وإقامتك، ويخصّص سيرتك ورسالتك التحفيزية لكل منصب بصيغتي PDF و Word للترشح المباشر.</p>
+      <div class="hero-cta rv in rv-d2">
+        {% if user %}
+          <a class="btn btn-gold" href="{{ url_for('opportunities') }}">🎯 اعرض فرصي المقترحة
+            {% if opp_new %}<span class="chip chip-gold" style="margin-right:4px">{{ opp_new }} جديدة</span>{% endif %}</a>
+          <a class="btn btn-ghost" href="{{ url_for('jobs_page') }}">تصفح كل العروض</a>
+        {% else %}
+          <a class="btn btn-gold" href="{{ url_for('register') }}">🚀 سجّل بسيرتك الذاتية — مجاناً</a>
+          <a class="btn btn-ghost" href="{{ url_for('jobs_page') }}">تصفح العروض</a>
+        {% endif %}
+      </div>
+      {% if not user %}
+      <a class="small" style="color:var(--gold); font-weight:700" href="{{ url_for('demo_login') }}">⏱ لا وقت لديك؟ ادخل مباشرة بحساب تجريبي جاهز ←</a>
+      {% endif %}
+      <div class="hero-stats rv in rv-d3">
+        <div class="hstat"><b data-count="{{ stats.jobs }}">0</b><span>عرض عمل متاح</span></div>
+        <div class="hstat"><b data-count="{{ stats.companies }}">0</b><span>شركة جزائرية</span></div>
+        <div class="hstat"><b data-count="{{ stats.wilayas }}">0</b><span>ولاية مغطاة</span></div>
+        <div class="hstat"><b>12h</b><span>دورة بحث تلقائي عن الجديد</span></div>
+      </div>
+    </div>
+
+    <!-- مجسم الملفات العائمة -->
+    <div class="mock-wrap rv in rv-d2">
+      <div class="mock mock-a">
+        <div class="m-head">
+          <div class="m-photo">👤</div>
+          <div><div class="m-name">أمين قاسمي</div><div class="m-role">مهندس كهروميكانيك — سطيف</div></div>
+        </div>
+        <div class="m-line g"></div><div class="m-line o"></div><div class="m-line"></div>
+        <div class="m-chips"><span class="m-chip star">★ صيانة صناعية</span><span class="m-chip star">★ HSE</span><span class="m-chip">ميكانيك</span></div>
+        <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center">
+          <span style="font-size:.68rem;color:var(--muted)">سيرة مخصّصة للمنصب</span>
+          <span class="match-num" style="font-size:1.15rem">92%</span>
+        </div>
+        <div class="match-bar"><div class="match-fill" style="width:92%"></div></div>
+      </div>
+      <div class="mock mock-b">
+        <div style="font-weight:800;font-size:.85rem;color:var(--green-deep)">✉ رسالة تحفيزية</div>
+        <div style="font-size:.72rem;color:var(--gold-dark);font-weight:700;margin:2px 0 10px">إلى: Service Recrutement</div>
+        <div class="m-line"></div><div class="m-line g"></div><div class="m-line g" style="width:88%"></div><div class="m-line o"></div>
+        <div style="margin-top:12px;font-size:.68rem;color:var(--muted)">وُلِّدت آلياً بالعربية أو الفرنسية</div>
+      </div>
+      <div class="f-chip f-chip-1"><span class="dot-g"></span> بريد توظيف رسمي <b dir="ltr">recrutement@…dz</b></div>
+      <div class="f-chip f-chip-2">⏰ تذكير متابعة تلقائي <b>بعد أسبوع</b></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ أحدث العروض ═══ -->
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">يُحدَّث تلقائياً كل 12 ساعة</span>
+    <h2>أحدث فرص العمل المنشورة</h2>
+    <p>عروض من شركات جزائرية — كلها ببريد موارد بشرية رسمي للترشح المباشر</p>
+  </div>
+  <div class="grid grid-3">
+    {% for j in latest %}
+    <a class="card job-card rv rv-d{{ loop.index if loop.index < 4 else 3 }}" href="{{ url_for('job_page', jid=j.id) }}">
+      {% if j.posted_days_ago <= 3 %}<span class="badge-new">جديد ✦</span>{% endif %}
+      <div class="job-top">
+        <div class="logo-dot" style="background:linear-gradient(140deg, {{ j.color }}, {{ j.color }}cc)">{{ j.company[:1] }}</div>
+        <div>
+          <h3>{{ j.title }}</h3>
+          <div class="muted small">{{ j.company }}</div>
+        </div>
+      </div>
+      <div class="job-meta">
+        <span class="chip">📍 {{ j.city }}</span>
+        <span class="chip-gray chip">{{ j.contract }}</span>
+        <span class="chip-gold chip">{{ j.sector }}</span>
+      </div>
+      {% if j.score is not none %}
+      <div>
+        <div class="small muted">مطابقة سيرتك: <span class="match-num">{{ j.score }}%</span></div>
+        <div class="match-bar"><div class="match-fill" style="width:{{ j.score }}%"></div></div>
+      </div>
+      {% endif %}
+      <div class="muted small" style="margin-top:auto">⏱ {{ j.posted_days_ago|ago }} • 💰 {{ j.salary }}</div>
+    </a>
+    {% endfor %}
+  </div>
+  <div style="text-align:center; margin-top:30px" class="rv">
+    <a class="btn btn-primary" href="{{ url_for('jobs_page') }}">استكشف كل العروض ({{ stats.jobs }}) ←</a>
+  </div>
+</div>
+
+<!-- ═══ كيف يعمل ═══ -->
+<div class="section" style="background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line)">
+  <div class="container">
+    <div class="section-head rv">
+      <span class="eyebrow">كل شيء أوتوماتيكي</span>
+      <h2>كيف يحوّل التطبيق سيرتك إلى وظيفة؟</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card feat rv rv-d1">
+        <div class="ico">📄</div>
+        <h3>سجّل بسيرتك الذاتية</h3>
+        <p>حمّل DOCX أو PDF فيستخرج التطبيق صورتك الشخصية واسمك وخبراتك وشهاداتك ومهاراتك تلقائياً — حسابك جاهز في ثوانٍ.</p>
+      </div>
+      <div class="card feat rv rv-d2">
+        <div class="ico">🔄</div>
+        <h3>بحث تلقائي كل 12 ساعة</h3>
+        <p>يفحص النظام العروض الجديدة دورياً، يفلترها حسب مهاراتك وولايتك وقربها من إقامتك، ويضع لك «فرص مقترحة» جاهزة للترشح الفوري دون أي بحث يدوي.</p>
+      </div>
+      <div class="card feat rv rv-d3">
+        <div class="ico">✨</div>
+        <h3>ترشّح وتابِع تلقائياً</h3>
+        <p>سيرة ورسالة PDF/Word مخصّصة لكل منصب، إرسال مباشر لبريد الموارد البشرية، وتذكير آلي بعد أسبوع برسالة متابعة جاهزة.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ الشركات ═══ -->
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">جهات توظّف عبر الولايات</span>
+    <h2>شركات جزائرية تنشر عروضها هنا</h2>
+  </div>
+  <div class="marquee rv">
+    <div class="mq-track">
+      {% for j in latest + latest %}
+      <span class="mq-item"><span class="ld" style="background:{{ j.color }}">{{ j.company[:1] }}</span>{{ j.company }}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══ دعوة نهائية ═══ -->
+<div class="section container">
+  <div class="card rv" style="background:var(--grad-green); border:none; color:#fff; padding:44px 34px; text-align:center">
+    <div class="blob blob-2" style="opacity:.25"></div>
+    <h2 style="font-size:1.7rem; font-weight:800; position:relative">جاهز؟ سيرتك الذاتية هي تذكرتك 🎫</h2>
+    <p style="opacity:.85; margin:10px auto 24px; max-width:540px; position:relative">نزّل النموذج التجريبي الجاهز وسجّل به لترى بنفسك كيف يتحوّل ملفك إلى حساب كامل مع فرص مقترحة مرتبة حسب مطابقتك.</p>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; position:relative">
+      <a class="btn btn-gold" href="{{ url_for('sample_cv') }}">⬇ نزّل النموذج التجريبي</a>
+      <a class="btn btn-ghost" style="background:rgba(255,255,255,.09); border-color:rgba(255,255,255,.35); color:#fff" href="{{ url_for('register') }}">أنشئ حسابك الآن</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

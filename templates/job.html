@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} — {{ job.company }}{% endblock %}
+{% block body %}
+<div class="section container">
+  <a class="small" href="{{ url_for('jobs_page') }}">← رجوع إلى العروض</a>
+  <div class="card" style="margin-top:12px">
+    <div class="detail-head">
+      <div class="logo-dot" style="background:{{ job.color }}">{{ job.company[:1] }}</div>
+      <div style="flex:1; min-width:240px">
+        <h2>{{ job.title }}</h2>
+        <div class="muted">{{ job.company }} — قطاع {{ job.sector }}</div>
+        <div class="job-meta" style="margin-top:10px">
+          <span class="chip">📍 {{ job.city }} ({{ job.wilaya }})</span>
+          <span class="chip-gray chip">{{ job.contract }}</span>
+          <span class="chip-gold chip">💰 {{ job.salary }}</span>
+          <span class="chip-gray chip">⏱ {{ job.posted_days_ago|ago }}</span>
+        </div>
+      </div>
+      {% if score is not none %}
+      <div class="score-ring">
+        <div class="n">{{ score }}%</div>
+        <div class="small muted">مطابقة سيرتك</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <h3 style="margin:14px 0 6px">وصف المنصب</h3>
+    <p class="muted">{{ job.description }}</p>
+
+    <h3 style="margin:16px 0 8px">المتطلبات والكفاءات</h3>
+    <div class="tags">
+      {% for r in job.requirements %}
+      <span class="tag">{{ r }}{% if score is not none %}{% if r in matched %} ✓{% else %} ✗{% endif %}{% endif %}</span>
+      {% endfor %}
+    </div>
+    {% if score is not none %}
+    <div class="small skip" style="margin-top:8px">✓ = متوفرة في سيرتك الذاتية &nbsp;•&nbsp; ✗ = غير مذكورة</div>
+    {% endif %}
+
+    <h3 style="margin:18px 0 8px">📬 بريد الموارد البشرية للترشح</h3>
+    <div class="hr-mail">
+      <span>📧</span>
+      <code>{{ job.hr_email }}</code>
+      <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('{{ job.hr_email }}');this.textContent='تم النسخ ✓'">نسخ</button>
+      <span class="small muted">عنوان توظيف رسمي مخصص للترشح فقط</span>
+    </div>
+
+    <div style="margin-top:22px; display:flex; gap:10px; flex-wrap:wrap">
+      {% if user %}
+        <a class="btn btn-primary" href="{{ url_for('apply_page', jid=job.id) }}">
+          {% if applied %}🛠 إدارة طلب ترشحي{% else %}🚀 ترشح لهذا المنصب — خصّص ملفاتي{% endif %}
+        </a>
+      {% else %}
+        <a class="btn btn-primary" href="{{ url_for('register') }}">سجّل بسيرتك الذاتية للترشح</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

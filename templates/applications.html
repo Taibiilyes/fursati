@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}طلبات الترشح{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">سجلك الكامل</span>
+    <h2>📮 طلبات الترشح</h2>
+  </div>
+  {% if not apps %}
+  <div class="empty card"><span class="ico">🗂️</span>لم تحضّر أي طلب ترشح بعد.<br>
+    <a class="btn btn-primary btn-sm" style="margin-top:14px" href="{{ url_for('jobs_page') }}">تصفح العروض المطابقة</a></div>
+  {% else %}
+  <div class="rv in table-wrap">
+  <table>
+    <thead><tr><th>المنصب</th><th>الشركة</th><th>الموقع</th><th>بريد التوظيف</th><th>الحالة</th><th>الملفات</th></tr></thead>
+    <tbody>
+      {% for a in apps %}
+      <tr>
+        <td><b>{{ a.title }}</b></td>
+        <td>{{ a.company }}</td>
+        <td>{{ a.city }}</td>
+        <td><code class="small" dir="ltr">{{ a.hr_email }}</code></td>
+        <td><span class="chip {% if 'مُرسَل' in a.status or 'مرسل' in a.status %}chip-gold{% endif %}">{{ a.status }}</span></td>
+        <td class="doc-actions">
+          <a class="btn btn-gold btn-sm" href="{{ url_for('apply_cv', jid=a.job_id, format='pdf') }}">السيرة PDF</a>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_cv', jid=a.job_id, format='docx') }}">Word</a>
+          <a class="btn btn-gold btn-sm" href="{{ url_for('apply_letter', jid=a.job_id, lang='ar', format='pdf') }}">الرسالة PDF</a>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_letter', jid=a.job_id, lang='ar', format='docx') }}">Word</a>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_page', jid=a.job_id) }}">إدارة ↗</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

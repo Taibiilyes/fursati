@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}تسجيل الدخول{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="card form-card" style="max-width:480px">
+    <h2 style="margin-bottom:16px">تسجيل الدخول 👋</h2>
+    <form method="post">
+      <div class="field"><label>البريد الإلكتروني</label>
+        <input type="email" name="email" required></div>
+      <div class="field"><label>كلمة المرور</label>
+        <input type="password" name="password" required></div>
+      <button class="btn btn-primary btn-block" type="submit">دخول</button>
+    </form>
+    <div style="text-align:center; margin:16px 0 4px" class="small muted">— أو —</div>
+    <a class="btn btn-gold btn-block" href="{{ url_for('demo_login') }}">🚀 دخول مباشر فوري (حساب أمين التجريبي)</a>
+    <p class="small muted" style="margin-top:14px">ليس لديك حساب؟ <a href="{{ url_for('register') }}">أنشئه بسيرتك الذاتية</a> في أقل من دقيقة.</p>
+  </div>
+</div>
+{% endblock %}

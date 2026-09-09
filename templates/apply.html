@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}الترشح — {{ job.title }}{% endblock %}
+{% block body %}
+<div class="section container">
+  <a class="small" href="{{ url_for('job_page', jid=job.id) }}">← رجوع إلى العرض</a>
+  <div class="card" style="margin-top:12px">
+    <div class="detail-head">
+      <div class="logo-dot" style="background:linear-gradient(140deg, {{ job.color }}, {{ job.color }}cc)">{{ job.company[:1] }}</div>
+      <div style="flex:1">
+        <h2>الترشح لمنصب: {{ job.title }}</h2>
+        <div class="muted small">{{ job.company }} — {{ job.city }} ({{ job.wilaya }})</div>
+      </div>
+      <div class="score-ring"><div class="n">{{ score }}%</div><div class="small muted">مطابقة</div></div>
+    </div>
+
+    {% if matched %}
+    <p class="small">سيرتك تحتوي على <b>{{ matched|length }}</b> من الكفاءات المطلوبة: {{ matched|join('، ') }}. سيُبرز التخصيص الآلي هذه الكفاءات في ملفك.</p>
+    {% endif %}
+
+    <h3 style="margin:22px 0 4px">خطوات الترشح</h3>
+    <div class="apply-steps">
+      <div class="apply-step">
+        <div class="st-ico">1️⃣</div>
+        <div style="flex:1">
+          <b>السيرة الذاتية المخصّصة</b>
+          <div class="small muted">تُعاد بناء سيرتك بترويسة فاخرة، ملخص موجَّه للشركة والمنصب، وترتيب المهارات المطلوبة أولاً بنجوم ذهبية — بصيغتي PDF و Word.</div>
+          <div class="doc-actions">
+            <a class="btn btn-gold btn-sm" href="{{ url_for('apply_cv', jid=job.id, format='pdf') }}">⬇ سيرة PDF</a>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_cv', jid=job.id, format='docx') }}">⬇ سيرة Word</a>
+            {% if cv_ready %}<span class="chip">✓ محضّرة</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="apply-step">
+        <div class="st-ico">2️⃣</div>
+        <div style="flex:1">
+          <b>الرسالة التحفيزية المخصّصة</b>
+          <div class="small muted">رسالة رسمية موجهة لمسؤول التوظيف تذكر الشركة والمنصب ومهاراتك المطابقة — بالعربية أو الفرنسية، وبالصيغتين.</div>
+          <div class="doc-actions">
+            <a class="btn btn-gold btn-sm" href="{{ url_for('apply_letter', jid=job.id, lang='ar', format='pdf') }}">⬇ عربية PDF</a>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_letter', jid=job.id, lang='ar', format='docx') }}">⬇ عربية Word</a>
+            <a class="btn btn-gold btn-sm" href="{{ url_for('apply_letter', jid=job.id, lang='fr', format='pdf') }}">⬇ Lettre PDF</a>
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('apply_letter', jid=job.id, lang='fr', format='docx') }}">⬇ Lettre Word</a>
+            {% if letter_ready %}<span class="chip">✓ محضّرة</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="apply-step">
+        <div class="st-ico">3️⃣</div>
+        <div style="flex:1">
+          <b>الإرسال إلى بريد الموارد البشرية</b>
+          <div class="small muted">اضغط الزر ليُفتح بريدك مع الموضوع والنص جاهزين، أرفق الملفين المولَّدين (PDF موصى به) ثم أرسل.</div>
+          <div class="hr-mail" style="margin-top:9px">
+            <span>📧</span><code>{{ job.hr_email }}</code>
+            <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('{{ job.hr_email }}');this.textContent='تم النسخ ✓'">نسخ</button>
+          </div>
+          {% if mail_cfg %}
+          <div class="doc-actions">
+            <form method="post" action="{{ url_for('apply_send_email', jid=job.id) }}">
+              <button class="btn btn-gold" type="submit">🚀 إرسال مباشر الآن عبر بريدك (السيرة + الرسالة PDF مرفقتين)</button>
+            </form>
+          </div>
+          <div class="small muted" style="margin:6px 0 2px">— أو الإرسال اليدوي من تطبيق بريدك:</div>
+          {% else %}
+          <div class="small" style="background:#FDF6E3;border:1px solid #EEDDB0;border-radius:10px;padding:9px 13px;margin-bottom:8px">
+            💡 <b>للإرسال المباشر من داخل التطبيق:</b> <a href="{{ url_for('settings_email') }}"><b>اربط بريدك الإلكتروني (SMTP) من هنا</b></a> — خطوة واحدة لمرة واحدة، وبعدها يُرسل كل ترشح آلياً بمرفقات PDF.
+          </div>
+          {% endif %}
+          <div class="doc-actions">
+            <a class="btn btn-primary" href="{{ mailto }}">✉ فتح البريد وإرسال الطلب</a>
+            <form method="post" action="{{ url_for('apply_sent', jid=job.id) }}">
+              <button class="btn btn-ghost btn-sm" type="submit">أرسلته ✓ علّم الطلب كمُرسَل</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="small muted" style="margin-top:16px">💡 نصيحة: أرسل نسخة PDF — تظهر بهوية بصرية موحّدة تُبرز تخصيص ملفك لهذا المنصب تحديداً.</div>
+  </div>
+</div>
+{% endblock %}

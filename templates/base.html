@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B4232">
+<title>{% block title %}فرصتي{% endblock %} | فرصتي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="icon" href="/static/favicon.ico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="فرصتي">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+<div id="progress"></div>
+<div id="glow"></div>
+
+<nav class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="{{ url_for('index') }}" class="brand">
+      <svg width="36" height="36" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="13" fill="#0B4232"/><path d="M10 34c4-2 7-8 14-8s10 6 14 8" stroke="#F5C445" stroke-width="2.6" stroke-linecap="round"/><path d="M24 26V14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M24 16c-3-3-8-3-10 1 4 2 8 1 10-1zm0 0c3-3 8-3 10 1-4 2-8 1-10-1zm0-3c-1-3 0-6 0-6s1 3 0 6z" fill="#fff"/></svg>
+      <span>فرص<b>تي</b></span>
+    </a>
+    <div class="nav-links">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}">الرئيسية</a>
+      <a href="{{ url_for('jobs_page') }}" class="{{ 'active' if request.endpoint in ('jobs_page','job_page') }}">العروض</a>
+      {% if user %}
+        <a href="{{ url_for('opportunities') }}" class="{{ 'active' if request.endpoint=='opportunities' }}">فرصي المقترحة
+          {% if opp_new %}<span class="nav-badge">{{ opp_new }}</span>{% endif %}</a>
+        <a href="{{ url_for('applications') }}" class="{{ 'active' if request.endpoint in ('applications','apply_page') }}">طلباتي</a>
+        <a href="{{ url_for('reminders') }}" class="{{ 'active' if request.endpoint in ('reminders','reminder_sent') }}">التذكيرات
+          {% if rem_pending %}<span class="nav-badge nav-badge-gold">{{ rem_pending }}</span>{% endif %}</a>
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint in ('dashboard','profile','activity') }}">لوحتي</a>
+        <a href="{{ url_for('profile') }}" class="nav-user">
+          {% if user.photo %}<img src="{{ url_for('photos', name=user.photo) }}" alt="" class="nav-avatar">{% else %}<span class="nav-avatar nav-avatar-empty">{{ user.full_name[:1] }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-ghost btn-sm">خروج</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint=='login' }}">دخول</a>
+        <a href="{{ url_for('register') }}" class="btn btn-gold btn-sm">سجّل بسيرتك ✦</a>
+      {% endif %}
+    </div>
+    <!-- أدوات الهاتف (تظهر فقط على الشاشات الصغيرة) -->
+    <div class="nav-mobile">
+      {% if user %}
+        <a href="{{ url_for('profile') }}" aria-label="ملفي">
+          {% if user.photo %}<img src="{{ url_for('photos', name=user.photo) }}" alt="" class="nav-avatar">{% else %}<span class="nav-avatar nav-avatar-empty">{{ user.full_name[:1] }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-ghost btn-sm">خروج</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-ghost btn-sm">دخول</a>
+        <a href="{{ url_for('register') }}" class="btn btn-gold btn-sm">سجّل ✦</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="container flashes">
+    {% for cat, msg in messages %}
+    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block body %}{% endblock %}</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <b>فرصتي</b> — منصة ذكية للبحث عن عروض العمل والترشح المباشر
+      <div class="muted small">بحث تلقائي كل 12 ساعة • تذكير متابعة بعد أسبوع • PDF + Word</div>
+    </div>
+    <div class="muted small">© 2026 فرصتي</div>
+  </div>
+</footer>
+
+<!-- شريط التنقل السفلي — بأسلوب التطبيقات (هاتف فقط) -->
+<nav class="bottom-nav">
+  {% if user %}
+  <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}"><span class="bn-ico">🏠</span><span>الرئيسية</span></a>
+  <a href="{{ url_for('jobs_page') }}" class="{{ 'active' if request.endpoint in ('jobs_page','job_page') }}"><span class="bn-ico">💼</span><span>العروض</span></a>
+  <a href="{{ url_for('opportunities') }}" class="{{ 'active' if request.endpoint=='opportunities' }}"><span class="bn-ico">🎯</span><span>فرصي</span>{% if opp_new %}<span class="nav-badge">{{ opp_new }}</span>{% endif %}</a>
+  <a href="{{ url_for('reminders') }}" class="{{ 'active' if request.endpoint in ('reminders','reminder_sent') }}"><span class="bn-ico">⏰</span><span>التذكير</span>{% if rem_pending %}<span class="nav-badge nav-badge-gold">{{ rem_pending }}</span>{% endif %}</a>
+  <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint in ('dashboard','profile','activity','applications','apply_page') }}"><span class="bn-ico">👤</span><span>لوحتي</span></a>
+  {% else %}
+  <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}"><span class="bn-ico">🏠</span><span>الرئيسية</span></a>
+  <a href="{{ url_for('jobs_page') }}" class="{{ 'active' if request.endpoint in ('jobs_page','job_page') }}"><span class="bn-ico">💼</span><span>العروض</span></a>
+  <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint=='login' }}"><span class="bn-ico">🔑</span><span>دخول</span></a>
+  <a href="{{ url_for('register') }}" class="bn-cta"><span class="bn-ico">🚀</span><span>سجّل بسيرتك</span></a>
+  {% endif %}
+</nav>
+
+<script>
+const prog = document.getElementById('progress');
+addEventListener('scroll', () => {
+  const h = document.documentElement;
+  prog.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+  document.getElementById('nav').classList.toggle('scrolled', h.scrollTop > 24);
+}, {passive:true});
+
+const glow = document.getElementById('glow');
+if (matchMedia('(hover:hover)').matches) {
+  let gx = innerWidth/2, gy = 300, tx = gx, ty = gy;
+  addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+  (function loop(){
+    gx += (tx-gx)*.08; gy += (ty-gy)*.08;
+    glow.style.left = gx+'px'; glow.style.top = gy+'px';
+    requestAnimationFrame(loop);
+  })();
+} else { glow.style.display = 'none'; }
+
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+}), {threshold:.12});
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+const cio = new IntersectionObserver(es => es.forEach(e => {
+  if(!e.isIntersecting) return;
+  const el = e.target, target = +el.dataset.count, dur = 1400, t0 = performance.now();
+  (function tick(t){
+    const k = Math.min((t-t0)/dur, 1), ease = 1-Math.pow(1-k,3);
+    el.textContent = Math.round(target*ease);
+    if(k<1) requestAnimationFrame(tick);
+  })(t0);
+  cio.unobserve(el);
+}), {threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el => cio.observe(el));
+</script>
+<!-- شريط تثبيت التطبيق -->
+<div id="installBar" class="install-bar" hidden>
+  <span class="ib-txt">📲 ثبّت <b>«فرصتي»</b> كتطبيق على شاشتك الرئيسية</span>
+  <button id="installBtn" class="btn btn-gold btn-sm">تثبيت</button>
+  <button class="ib-x" onclick="document.getElementById('installBar').hidden=true;localStorage.setItem('ib','1')">✕</button>
+</div>
+
+<script>
+/* عامل الخدمة + تثبيت PWA */
+if('serviceWorker' in navigator){
+  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+}
+let deferredPrompt = null;
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+const bar = document.getElementById('installBar');
+addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  if(!isStandalone && !localStorage.getItem('ib')) bar.hidden = false;
+});
+document.getElementById('installBtn')?.addEventListener('click', async () => {
+  if(deferredPrompt){ deferredPrompt.prompt(); const {outcome} = await deferredPrompt.userChoice;
+    if(outcome === 'accepted'){ bar.hidden = true; localStorage.setItem('ib','1'); }
+    deferredPrompt = null; }
+});
+if(isStandalone) bar.hidden = true;
+</script>
+</body>
+</html>

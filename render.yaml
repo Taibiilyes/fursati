@@ -1,0 +1,17 @@
+# ── فرصتي — إعداد نشر Render (Blueprint) ──
+# مهم جداً: اسم الخدمة "fursati-dz" هو نفسه المكتوب داخل تطبيق الأندرويد (APK).
+# إذا غيّرت الاسم، غيّر أيضاً الرابط داخل التطبيق أو اطلب بناء APK جديد.
+services:
+  - type: web
+    name: fursati-dz
+    runtime: python
+    plan: free
+    region: frankfurt          # أقرب منطقة للجزائر
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: WEB_CONCURRENCY
+        value: 1

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}سجل النشاط{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">كل شيء محفوظ — لا يضيع شيء</span>
+    <h2>🗂️ سجل النشاط والعمليات الناجحة</h2>
+    <p>تسجيل دائم لكل التسجيلات، التعديلات، التوليدات، الإرسالات والتذكيرات</p>
+  </div>
+
+  {% if not logs %}
+  <div class="empty card"><span class="ico">🗂️</span>لا توجد عمليات مسجلة بعد.</div>
+  {% else %}
+  <div class="card rv in">
+    <ul class="tl log-list">
+      {% for l in logs %}
+      <li>
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap">
+          <b>{{ l.action }} {% if l.ok %}<span class="chip" style="font-size:.68rem">نجحت ✓</span>{% endif %}</b>
+          <span class="small muted">{{ l.created_at|dt }}</span>
+        </div>
+        <div class="small muted">{{ l.detail }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

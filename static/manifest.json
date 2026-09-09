@@ -1,0 +1,24 @@
+{
+  "name": "فرصتي — منصة عروض العمل",
+  "short_name": "فرصتي",
+  "description": "البحث عن عروض العمل، الترشح المباشر عبر بريد الموارد البشرية، وتذكير المتابعة التلقائي",
+  "dir": "rtl",
+  "lang": "ar",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F4EC",
+  "theme_color": "#0B4232",
+  "categories": ["business", "education"],
+  "icons": [
+    { "src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "فرصي المقترحة", "url": "/opportunities", "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "العروض", "url": "/jobs", "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "التذكيرات", "url": "/reminders", "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}التذكيرات التلقائية{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="section-head rv">
+    <span class="eyebrow">متابعة آلية بعد 7 أيام من كل ترشح</span>
+    <h2>⏰ تذكيرات المتابعة</h2>
+    <p>عندما يمضي أسبوع على إرسال طلب ترشح، يحرّر النظام تلقائياً رسالة متابعة مهذبة مع نسخة PDF جاهزة للإرسال</p>
+  </div>
+
+  <div class="qa-bar rv in">
+    <span class="small muted">النظام يفحص الطلبات تلقائياً مع كل دورة بحث (كل 12 ساعة)</span>
+    <form method="post" action="{{ url_for('reminders_simulate') }}">
+      <button class="btn btn-ghost btn-sm" title="للتجربة: يحرّر التذكيرات فوراً بدل انتظار أسبوع">⏩ محاكاة مرور أسبوع (تجربة)</button>
+    </form>
+  </div>
+
+  {% if not reminders %}
+  <div class="empty card"><span class="ico">📭</span>
+    <b>لا توجد تذكيرات حالياً</b>
+    <p class="small muted" style="margin-top:6px">رشّح لعرض وعلّمه «مُرسَل» — وبعد أسبوع سيُحرَّر التذكير آلياً. أو جرّب زر المحاكاة أعلاه.</p>
+    <a class="btn btn-primary btn-sm" style="margin-top:12px" href="{{ url_for('jobs_page') }}">تصفح العروض</a>
+  </div>
+  {% else %}
+  <div class="grid grid-2">
+    {% for r in reminders %}
+    <div class="card rv rv-d{{ loop.index if loop.index < 5 else 4 }}">
+      <div class="job-top">
+        <div class="st-ico">{{ '📨' if r.status == 'تم الإرسال' else '🔔' }}</div>
+        <div style="flex:1">
+          <h3 style="font-size:.98rem">{{ r.title }} — {{ r.company }}</h3>
+          <div class="small muted">أُنشئ تلقائياً في {{ r.created_at|dt }}
+            <span class="chip {{ 'chip-gold' if r.status != 'تم الإرسال' else '' }}" style="margin-right:6px">{{ r.status }}</span></div>
+        </div>
+      </div>
+      <div class="small muted" style="margin:10px 0 4px"><b>نص الرسالة:</b></div>
+      <div class="small" style="background:var(--sand); border-radius:12px; padding:11px 14px; white-space:pre-line">{{ r.body }}</div>
+      <div class="doc-actions">
+        {% if mail_cfg %}
+        <form method="post" action="{{ url_for('reminder_send_email', rid=r.id) }}">
+          <button class="btn btn-gold btn-sm" type="submit">🚀 إرسال مباشر عبر بريدك</button>
+        </form>
+        {% endif %}
+        <a class="btn btn-gold btn-sm" href="{{ r.mailto }}">✉ فتح البريد وإرسال التذكير</a>
+        {% if r.pdf_path %}<a class="btn btn-ghost btn-sm" href="{{ url_for('docs', name=r.pdf_path) }}">⬇ PDF المتابعة</a>{% endif %}
+        {% if r.status != 'تم الإرسال' %}
+        <form method="post" action="{{ url_for('reminder_sent', rid=r.id) }}">
+          <button class="btn btn-ghost btn-sm">أرسلته ✓</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

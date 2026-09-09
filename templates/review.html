@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}مراجعة المعلومات المستخرجة{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="card form-card">
+    <h2>راجع ما استخرجناه من سيرتك ✅</h2>
+    <p class="muted small" style="margin-bottom:18px">هذه كل معلوماتك المستخرجة آلياً. صحّح ما تريد، اختر كلمة مرور، وسيصبح هذا ملفك الشخصي الدائم.</p>
+
+    <div style="display:flex; gap:16px; align-items:center; margin-bottom:18px; flex-wrap:wrap">
+      {% if p._photo_file %}
+      <img src="{{ url_for('tmp_photo', name=p._photo_file) }}" class="avatar" alt="الصورة الشخصية">
+      <div>
+        <b>الصورة الشخصية المستخرجة</b>
+        <div class="muted small">تم العثور عليها داخل ملف سيرتك الذاتية</div>
+      </div>
+      {% else %}
+      <div class="avatar avatar-empty">👤</div>
+      <div><b>لم نجد صورة في الملف</b><div class="muted small">يمكنك إضافتها لاحقاً من ملفك الشخصي</div></div>
+      {% endif %}
+    </div>
+
+    <form method="post">
+      <div class="form-row">
+        <div class="field"><label>الاسم الكامل</label>
+          <input type="text" name="full_name" value="{{ p.full_name }}" required></div>
+        <div class="field"><label>البريد الإلكتروني (للدخول)</label>
+          <input type="email" name="email" value="{{ p.email }}" required></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>الهاتف</label>
+          <input type="text" name="phone" value="{{ p.phone }}"></div>
+        <div class="field"><label>تاريخ الميلاد</label>
+          <input type="text" name="birth_date" value="{{ p.birth_date }}" placeholder="يوم/شهر/سنة"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>المسمى الوظيفي</label>
+          <input type="text" name="title" value="{{ p.title }}" placeholder="مثال: مهندس دولة في الكهروميكانيك"></div>
+        <div class="field"><label>ولاية الإقامة</label>
+          <input type="text" name="wilaya" value="{{ p.wilaya }}" list="wl">
+          <datalist id="wl">{% for w in wilayas %}<option value="{{ w }}">{% endfor %}</datalist></div>
+      </div>
+      <div class="field"><label>العنوان</label>
+        <input type="text" name="address" value="{{ p.address }}"></div>
+      <div class="field"><label>الملخص المهني</label>
+        <textarea name="summary">{{ p.summary }}</textarea></div>
+      <div class="field"><label>المهارات (مفصولة بفواصل)</label>
+        <textarea name="skills">{{ p.skills|join('، ') }}</textarea>
+        <div class="hint">تم التعرف عليها آلياً من نص سيرتك — أضف ما شئت</div></div>
+      <div class="form-row">
+        <div class="field"><label>اللغات (سطر لكل لغة)</label>
+          <textarea name="languages">{% for l in p.languages %}{{ l }}
+{% endfor %}</textarea></div>
+        <div class="field"><label>الشهادات والدورات (مفصولة بفواصل)</label>
+          <textarea name="certifications">{{ p.certifications|join('، ') }}</textarea></div>
+      </div>
+      <div class="field"><label>الخبرة المهنية (سطر لكل خبرة)</label>
+        <textarea name="experience" placeholder="المنصب | الشركة | 2019-2023 | وصف قصير">{% for e in p.experience %}{{ e.role }} | {{ e.org }} | {{ e.period }} | {{ e.desc }}
+{% endfor %}</textarea></div>
+      <div class="field"><label>التكوين والشهادات الدراسية (سطر لكل شهادة)</label>
+        <textarea name="education" placeholder="الشهادة | المؤسسة | السنة">{% for e in p.education %}{{ e.degree }} | {{ e.school }} | {{ e.year }}
+{% endfor %}</textarea></div>
+      <div class="form-row">
+        <div class="field"><label>كلمة المرور</label>
+          <input type="password" name="password" required minlength="6"></div>
+        <div class="field" style="align-self:end">
+          <button class="btn btn-primary btn-block" type="submit">🎉 إنشاء الحساب والدخول</button>
+        </div>
+      </div>
+      <div class="hint">بالتسجيل أنت توافق على أن تُستعمل معلوماتك داخل التطبيق فقط لغرض مطابقة العروض وتخصيص ملفات الترشح.</div>
+    </form>
+  </div>
+</div>
+{% endblock %}

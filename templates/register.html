@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}التسجيل بسيرة ذاتية{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="card form-card">
+    <h2 style="margin-bottom:6px">أنشئ حسابك بسيرتك الذاتية 📄</h2>
+    <p class="muted small" style="margin-bottom:20px">لا حاجة لملء نماذج طويلة — حمّل سيرتك الذاتية وسنستخرج كل معلوماتك تلقائياً: من صورتك الشخصية إلى آخر عنصر، ثم تراجعها وتؤكد إنشاء الحساب.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      <label class="dropzone" id="dz">
+        <input type="file" name="cv" accept=".pdf,.docx" required>
+        <span class="dz-ico">📤</span>
+        <b>اضغط لاختيار ملف السيرة الذاتية</b>
+        <div class="muted small">الصيغ المقبولة: DOCX (الأدق) أو PDF — بحد أقصى 12MB</div>
+        <div class="small" id="dz-name" style="color:var(--green); font-weight:700; margin-top:6px"></div>
+      </label>
+      <div class="small muted" style="margin:12px 0 18px">
+        لا تملك سيرة ذاتية جاهزة؟ <a href="{{ url_for('sample_cv') }}">نزّل نموذجنا التجريبي الجاهز</a> وسجّل به مباشرة.
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">🔍 تحليل السيرة الذاتية وإنشاء الحساب</button>
+    </form>
+
+    <div class="grid grid-3" style="margin-top:22px; gap:10px">
+      <div class="small muted">🪪 الصورة الشخصية تُستخرج آلياً</div>
+      <div class="small muted">🎓 الشهادات والخبرات تُنظّم تلقائياً</div>
+      <div class="small muted">🔒 بياناتك محفوظة في حسابك فقط</div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('dz').addEventListener('change', function(e){
+  var f = e.target.files[0];
+  if(f) document.getElementById('dz-name').textContent = '✔ ' + f.name;
+});
+</script>
+{% endblock %}

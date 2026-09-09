@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}لوحة التحكم{% endblock %}
+{% block body %}
+<div class="section container">
+  <div class="card profile-head rv in" style="margin-bottom:16px">
+    {% if user.photo %}<img class="avatar" src="{{ url_for('photos', name=user.photo) }}" alt="">
+    {% else %}<div class="avatar avatar-empty">👤</div>{% endif %}
+    <div style="flex:1; min-width:220px">
+      <h2>{{ user.full_name }}</h2>
+      <div class="muted small">{{ user.title or 'بدون مسمى وظيفي' }} — {{ user.wilaya or 'حدد ولايتك للبحث القريب' }}</div>
+      <div class="tags">
+        {% for s in user.skills[:6] %}<span class="tag">{{ s }}</span>{% endfor %}
+      </div>
+    </div>
+    <div style="min-width:180px">
+      <div class="small muted">اكتمال ملفك: <b>{{ completeness }}%</b></div>
+      <div class="progress" style="margin-top:6px"><div style="width:{{ completeness }}%"></div></div>
+      <a class="small" href="{{ url_for('profile') }}">تعديل ملفي ←</a>
+    </div>
+  </div>
+
+  <!-- شريط الإجراءات السريعة -->
+  <div class="qa-bar rv in" style="margin-bottom:18px">
+    <form method="post" action="{{ url_for('scan_now') }}">
+      <button class="btn btn-primary btn-sm">🔄 بحث الآن عن عروض جديدة</button>
+    </form>
+    <a class="btn btn-gold btn-sm" href="{{ url_for('opportunities') }}">🎯 فرصي المقترحة{% if opp_total %} ({{ opp_total }}){% endif %}</a>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('jobs_page', near=1) }}">📍 الفرص القريبة من إقامتي</a>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('activity') }}">🗂️ سجل النشاط</a>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('settings_email') }}">🔗 ربط البريد للإرسال المباشر</a>
+    <span class="small muted" style="margin-inline-start:auto">🔎 آخر بحث تلقائي: <b>{{ last_scan|dt if last_scan else '—' }}</b></span>
+  </div>
+
+  {% if reminders %}
+  <div class="card rv in" style="margin-bottom:18px; border-color:rgba(224,168,46,.5); background:linear-gradient(140deg,#fff, #FDF6E3)">
+    <h3 style="margin-bottom:4px">⏰ لديك {{ reminders|length }} تذكير متابعة جاهز للإرسال</h3>
+    {% for r in reminders[:2] %}
+    <div class="small muted">• {{ r.title }} — {{ r.company }} (أُنشئ {{ r.created_at|dt }})</div>
+    {% endfor %}
+    <div class="doc-actions">
+      <a class="btn btn-gold btn-sm" href="{{ url_for('reminders') }}">افتح التذكيرات ←</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- الفرص المقترحة -->
+  <div class="section-head rv" style="text-align:right; margin:0 0 18px">
+    <span class="eyebrow">فلترة آلية كل 12 ساعة</span>
+    <h2>🎯 فرص مقترحة جاهزة للترشح الفوري</h2>
+  </div>
+  {% if opps %}
+  <div class="grid grid-3" style="margin-bottom:34px">
+    {% for o in opps %}
+    <div class="card job-card rv rv-d{{ loop.index if loop.index < 4 else 3 }}">
+      {% if o.score >= 70 %}<span class="badge-new badge-strong">مطابقة قوية ✦</span>{% endif %}
+      <div class="job-top">
+        <div class="logo-dot" style="background:linear-gradient(140deg, {{ o.color }}, {{ o.color }}cc)">{{ o.company[:1] }}</div>
+        <div><h3 style="font-size:.98rem">{{ o.title }}</h3><div class="muted small">{{ o.company }}</div></div>
+      </div>
+      <div>
+        <div class="small muted">مطابقة: <span class="match-num">{{ o.score }}%</span></div>
+        <div class="match-bar"><div class="match-fill" style="width:{{ o.score }}%"></div></div>
+      </div>
+      <div class="doc-actions" style="margin-top:auto">
+        <a class="btn btn-primary btn-sm" href="{{ url_for('apply_page', jid=o.job_id) }}">🚀 ترشح فوري</a>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('opportunities') }}">الكل ←</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card rv in" style="margin-bottom:34px; text-align:center">
+    <p class="muted small">لا توجد فرص مقترحة بعد — اضغط «بحث الآن» أو أكمل مهاراتك في ملفك.</p>
+  </div>
+  {% endif %}
+
+  <div class="grid grid-3" style="margin-bottom:34px">
+    <div class="card feat rv"><div class="ico">💼</div><b class="big" data-count="{{ total }}">0</b><div class="muted small">عرض متاح في المنصة</div></div>
+    <div class="card feat rv rv-d1"><div class="ico">🎯</div><b class="big" data-count="{{ strong }}">0</b><div class="muted small">عرض بمطابقة عالية (70%+)</div></div>
+    <div class="card feat rv rv-d2"><div class="ico">📮</div><b class="big" data-count="{{ napps }}">0</b><div class="muted small">طلب ترشح في سجلك</div></div>
+  </div>
+
+  <!-- إضافة سريعة من اللوحة -->
+  <div class="card rv in" style="margin-bottom:34px">
+    <h3 style="margin-bottom:12px">➕ إضافة سريعة إلى ملفك</h3>
+    <div class="qa-grid">
+      <form method="post" action="{{ url_for('profile_add_item') }}">
+        <input type="hidden" name="kind" value="skill">
+        <label>مهارة جديدة</label>
+        <div class="add-row"><input type="text" name="value" placeholder="مثال: لحام"><button class="btn btn-gold btn-sm">إضافة</button></div>
+      </form>
+      <form method="post" action="{{ url_for('profile_add_item') }}">
+        <input type="hidden" name="kind" value="degree">
+        <label>دبلوم / شهادة دراسية</label>
+        <div class="add-row"><input type="text" name="value" placeholder="مثال: ماستر تسيير"><button class="btn btn-gold btn-sm">إضافة</button></div>
+      </form>
+      <form method="post" action="{{ url_for('profile_add_item') }}">
+        <input type="hidden" name="kind" value="cert">
+        <label>شهادة عمل / دورة</label>
+        <div class="add-row"><input type="text" name="value" placeholder="مثال: شهادة PMP"><button class="btn btn-gold btn-sm">إضافة</button></div>
+      </form>
+      <form method="post" action="{{ url_for('profile_add_item') }}">
+        <input type="hidden" name="kind" value="interest">
+        <label>اهتمام</label>
+        <div class="add-row"><input type="text" name="value" placeholder="مثال: الطاقات المتجددة"><button class="btn btn-gold btn-sm">إضافة</button></div>
+      </form>
+      <form method="post" action="{{ url_for('profile_add_item') }}">
+        <input type="hidden" name="kind" value="experience">
+        <label>خبرة (المنصب | الجهة | المدة)</label>
+        <div class="add-row"><input type="text" name="value" placeholder="فني صيانة | مصنع X | 2020-2023"><button class="btn btn-gold btn-sm">إضافة</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- أفضل المطابقات -->
+  <div class="section-head rv" style="text-align:right; margin:0 0 18px">
+    <span class="eyebrow">مرتبة حسب نسبة التوافق</span>
+    <h2>🏆 أفضل المطابقات لسيرتك الذاتية</h2>
+  </div>
+  <div class="grid grid-3">
+    {% for j in top %}
+    <a class="card job-card rv rv-d{{ loop.index if loop.index < 4 else 3 }}" href="{{ url_for('job_page', jid=j.id) }}">
+      {% if j.score >= 70 %}<span class="badge-new badge-strong">مطابقة قوية ✦</span>
+      {% elif j.posted_days_ago <= 3 %}<span class="badge-new">جديد</span>{% endif %}
+      <div class="job-top">
+        <div class="logo-dot" style="background:linear-gradient(140deg, {{ j.color }}, {{ j.color }}cc)">{{ j.company[:1] }}</div>
+        <div><h3>{{ j.title }}</h3><div class="muted small">{{ j.company }}</div></div>
+      </div>
+      <div>
+        <div class="small muted">مطابقة: <span class="match-num">{{ j.score }}%</span></div>
+        <div class="match-bar"><div class="match-fill" style="width:{{ j.score }}%"></div></div>
+      </div>
+      <div class="muted small" style="margin-top:auto">📍 {{ j.city }} • ⏱ {{ j.posted_days_ago|ago }}</div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- آخر النشاط -->
+  {% if activity %}
+  <div class="section-head rv" style="text-align:right; margin:34px 0 16px">
+    <span class="eyebrow">آخر العمليات</span>
+    <h2>🗂️ آخر النشاط</h2>
+  </div>
+  <div class="card rv in">
+    <ul class="tl log-list">
+      {% for l in activity %}
+      <li>
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap">
+          <b>{{ l.action }}</b><span class="small muted">{{ l.created_at|dt }}</span>
+        </div>
+        <div class="small muted">{{ l.detail }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+    <a class="small" href="{{ url_for('activity') }}">عرض السجل الكامل ←</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
